@@ -138,6 +138,6 @@ type SOAPFaultBody struct {
 
 type SOAPFault struct {
 	XMLName xml.Name `xml:"http://schemas.xmlsoap.org/soap/envelope/ Fault"`
-	Code    string   `xml:",faultcode"`
-	String  string   `xml:",faultstring"`
+	Code    string   `xml:"faultcode"`
+	String  string   `xml:"faultstring"`
 }

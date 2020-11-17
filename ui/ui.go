@@ -20,7 +20,7 @@ func UI() http.Handler {
 	}
 
 	h := http.FileServer(filesystem)
-	return &idpUI{h, http.StripPrefix("/ui/", h)}
+	return &idpUI{h, http.StripPrefix("/SAML2/ui/", h)}
 }
 
 type idpUI struct {
@@ -32,13 +32,6 @@ func (s *idpUI) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	if "/favicon.ico" == req.URL.Path {
 		s.h.ServeHTTP(w, req)
 		return
-	}
-	if "/ui/login.html" == req.URL.Path {
-		// 5 minute cache for the login HTML page
-		w.Header().Add("Cache-Control", "public, max-age=600")
-	} else {
-		// Encourage caching of UI
-		w.Header().Add("Cache-Control", "public, max-age=31536000")
 	}
 	s.prefixHandler.ServeHTTP(w, req)
 }

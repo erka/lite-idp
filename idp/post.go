@@ -58,6 +58,9 @@ func (i *IDP) sendPostResponse(authRequest *model.AuthnRequest, user *model.User
 //Assume HTML 5, where <head> is not required
 const postTemplate = `<!DOCTYPE html>
 <html lang="en">
+<head>
+		<meta charset=utf-8/>
+</head>
 <body onload="document.getElementById('samlpost').submit()">
 <noscript>
 <p>

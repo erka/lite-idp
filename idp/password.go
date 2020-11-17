@@ -93,7 +93,7 @@ func (i *IDP) DefaultPasswordLoginHandler() http.HandlerFunc {
 				return i.respond(req, user, w, r)
 			}
 			if err == ErrInvalidPassword {
-				http.Redirect(w, r, fmt.Sprintf("/ui/login.html?requestId=%s&error=%s",
+				http.Redirect(w, r, fmt.Sprintf("/SAML2/ui/login.html?requestId=%s&error=%s",
 					url.QueryEscape(requestID), url.QueryEscape("Invalid login or password. Please try again.")),
 					http.StatusFound)
 				return nil
@@ -103,5 +103,21 @@ func (i *IDP) DefaultPasswordLoginHandler() http.HandlerFunc {
 		if err != nil {
 			i.Error(w, err.Error(), http.StatusInternalServerError)
 		}
+	}
+}
+
+func (i *IDP) DefaultLogoutHandler() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		u := i.getUserFromSession(r)
+		if u != nil {
+			http.SetCookie(w, &http.Cookie{
+				Name:     i.cookieName,
+				Path:     "/",
+				Secure:   true,
+				HttpOnly: true,
+				MaxAge:   -1,
+			})
+		}
+		http.Redirect(w, r, "/SAML/ui/login.html", http.StatusFound)
 	}
 }

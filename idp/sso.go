@@ -37,6 +37,7 @@ import (
 	"github.com/golang/protobuf/proto"
 	"github.com/google/uuid"
 	log "github.com/sirupsen/logrus"
+	"github.com/spf13/viper"
 )
 
 func (i *IDP) validateRequest(request *saml.AuthnRequest, r *http.Request) error {
@@ -79,26 +80,19 @@ func (i *IDP) validateRequest(request *saml.AuthnRequest, r *http.Request) error
 	// Have to use the raw query as pointed out in the spec.
 	// https://docs.oasis-open.org/security/saml/v2.0/saml-bindings-2.0-os.pdf
 	// Line 621
-	return verifySignature(r.URL.RawQuery, r.Form.Get("SigAlg"), r.Form.Get("Signature"), sp)
+	if request.ProtocolBinding == "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST" {
+		return nil
+	}
+	return verifySignature(r.Form.Get("SAMLRequest"), r.Form.Get("RelayState"), r.Form.Get("SigAlg"), r.Form.Get("Signature"), sp)
 }
 
-func verifySignature(rawQuery, alg, expectedSig string, sp *ServiceProvider) error {
-	// Split up the parts
-	params := strings.Split(rawQuery, "&")
-	pMap := make(map[string]string, len(params))
-	for i := range params {
-		parts := strings.Split(params[i], "=")
-		if len(parts) != 2 {
-			return errors.New("trouble validating signature on request")
-		}
-		pMap[parts[0]] = parts[1]
-	}
+func verifySignature(samlRequest, relayState, alg, expectedSig string, sp *ServiceProvider) error {
 	// Order them
-	sigparts := []string{fmt.Sprintf("SAMLRequest=%s", pMap["SAMLRequest"])}
-	if state, ok := pMap["RelayState"]; ok {
-		sigparts = append(sigparts, fmt.Sprintf("RelayState=%s", state))
+	sigparts := []string{fmt.Sprintf("SAMLRequest=%s", samlRequest)}
+	if len(relayState) > 0 {
+		sigparts = append(sigparts, fmt.Sprintf("RelayState=%s", relayState))
 	}
-	sigparts = append(sigparts, fmt.Sprintf("SigAlg=%s", pMap["SigAlg"]))
+	sigparts = append(sigparts, fmt.Sprintf("SigAlg=%s", alg))
 	sig := []byte(strings.Join(sigparts, "&"))
 	// Validate the signature
 	signature, err := base64.StdEncoding.DecodeString(expectedSig)
@@ -160,11 +154,11 @@ func (i *IDP) DefaultRedirectSSOHandler() http.HandlerFunc {
 				return err
 			}
 			relayState := r.Form.Get("RelayState")
-			if len(relayState) > 80 {
-				return errors.New("RelayState cannot be longer than 80 characters")
+			if len(relayState) > viper.GetInt("relay-state-length") {
+				return fmt.Errorf("RelayState cannot be longer than %d characters", viper.GetInt("relay-state-length"))
 			}
 
-			samlReq := r.Form.Get("SAMLRequest")
+			samlReq := r.FormValue("SAMLRequest")
 			// URL decoding is already performed
 			// remove base64 encoding
 			reqBytes, err := base64.StdEncoding.DecodeString(samlReq)
@@ -177,7 +171,10 @@ func (i *IDP) DefaultRedirectSSOHandler() http.HandlerFunc {
 			decoder := xml.NewDecoder(req)
 			loginReq := &saml.AuthnRequest{}
 			if err = decoder.Decode(loginReq); err != nil {
-				return err
+				decoder = xml.NewDecoder(bytes.NewReader(reqBytes))
+				if errInner := decoder.Decode(loginReq); errInner != nil {
+					return err
+				}
 			}
 
 			if err = i.validateRequest(loginReq, r); err != nil {
@@ -212,8 +209,8 @@ func (i *IDP) DefaultRedirectSSOHandler() http.HandlerFunc {
 			if err != nil {
 				return err
 			}
-			http.Redirect(w, r, fmt.Sprintf("/ui/login.html?requestId=%s",
-				url.QueryEscape(id)), http.StatusTemporaryRedirect)
+			http.Redirect(w, r, fmt.Sprintf("/SAML2/ui/login.html?requestId=%s",
+				url.QueryEscape(id)), http.StatusFound)
 			return nil
 		}()
 		if err != nil {

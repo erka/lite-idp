@@ -18,10 +18,10 @@ import (
 	"crypto/tls"
 	"errors"
 	"fmt"
+	"html/template"
 	"net"
 	"net/http"
 	"strings"
-	"text/template"
 
 	"github.com/amdonov/lite-idp/model"
 	"github.com/amdonov/lite-idp/sign"
@@ -230,6 +230,7 @@ func (i *IDP) buildRoutes() error {
 		i.RedirectSSOHandler = i.DefaultRedirectSSOHandler()
 	}
 	r.HandlerFunc("GET", viper.GetString("sso-service-path"), i.RedirectSSOHandler)
+	r.HandlerFunc("POST", viper.GetString("sso-service-path"), i.RedirectSSOHandler)
 
 	// Handle ECP requests
 	if i.ECPHandler == nil {
@@ -241,7 +242,8 @@ func (i *IDP) buildRoutes() error {
 	if i.PasswordLoginHandler == nil {
 		i.PasswordLoginHandler = i.DefaultPasswordLoginHandler()
 	}
-	r.HandlerFunc("POST", "/ui/login.html", i.PasswordLoginHandler)
+	r.HandlerFunc("POST", "/SAML2/ui/login.html", i.PasswordLoginHandler)
+	r.HandlerFunc("GET", "/SAML2/logout", i.DefaultLogoutHandler())
 
 	// Handle attribute query
 	if i.QueryHandler == nil {
@@ -253,7 +255,7 @@ func (i *IDP) buildRoutes() error {
 	if i.UIHandler == nil {
 		i.UIHandler = ui.UI()
 	}
-	r.Handler("GET", "/ui/*path", i.UIHandler)
+	r.Handler("GET", "/SAML2/ui/*path", i.UIHandler)
 	r.Handler("GET", "/favicon.ico", i.UIHandler)
 
 	return nil
