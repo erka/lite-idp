@@ -52,6 +52,7 @@ type AssertionConsumerService struct {
 	IsDefault bool
 	Binding   string
 	Location  string
+	Audience  string
 }
 
 // ReadSPMetadata reads XML metadata from a reader

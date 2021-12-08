@@ -10,7 +10,7 @@ require (
 	github.com/beevik/etree v1.1.0 // indirect
 	github.com/elazarl/go-bindata-assetfs v1.0.0
 	github.com/go-redis/redis v6.15.5+incompatible
-	github.com/golang/protobuf v1.3.2
+	github.com/golang/protobuf v1.5.0
 	github.com/gomodule/redigo v2.0.0+incompatible // indirect
 	github.com/google/uuid v1.1.1
 	github.com/gopherjs/gopherjs v0.0.0-20181103185306-d547d1d9531e // indirect
@@ -37,6 +37,7 @@ require (
 	golang.org/x/net v0.0.0-20190628185345-da137c7871d7 // indirect
 	golang.org/x/sys v0.0.0-20190904154756-749cb33beabd // indirect
 	golang.org/x/text v0.3.2 // indirect
+	google.golang.org/protobuf v1.27.1
 	gopkg.in/fsnotify.v1 v1.4.7 // indirect
 	gopkg.in/tomb.v1 v1.0.0-20141024135613-dd632973f1e7 // indirect
 )

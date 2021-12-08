@@ -40,15 +40,15 @@ import (
 	"github.com/spf13/viper"
 )
 
-func (i *IDP) validateRequest(request *saml.AuthnRequest, r *http.Request) error {
+func (i *IDP) validateRequest(request *saml.AuthnRequest, r *http.Request) (string, error) {
 	// Only accept requests from registered service providers
 	if request.Issuer == "" {
-		return errors.New("request does not contain an issuer")
+		return "", errors.New("request does not contain an issuer")
 	}
 	log.Infof("received authentication request from %s", request.Issuer)
 	sp, ok := i.sps[request.Issuer]
 	if !ok {
-		return errors.New("request from an unregistered issuer")
+		return "", errors.New("request from an unregistered issuer")
 	}
 	// Determine the right assertion consumer service
 	var acs *AssertionConsumerService
@@ -67,13 +67,13 @@ func (i *IDP) validateRequest(request *saml.AuthnRequest, r *http.Request) error
 		}
 	}
 	if acs == nil {
-		return errors.New("unable to determine assertion consumer service")
+		return "", errors.New("unable to determine assertion consumer service")
 	}
 	// Don't allow a different URL than specified in the metadata
 	if request.AssertionConsumerServiceURL == "" {
 		request.AssertionConsumerServiceURL = acs.Location
 	} else if request.AssertionConsumerServiceURL != acs.Location {
-		return errors.New("assertion consumer location in request does not match metadata")
+		return "", errors.New("assertion consumer location in request does not match metadata")
 	}
 	// At this point, we're OK with the request
 	// Need to validate the signature
@@ -81,9 +81,9 @@ func (i *IDP) validateRequest(request *saml.AuthnRequest, r *http.Request) error
 	// https://docs.oasis-open.org/security/saml/v2.0/saml-bindings-2.0-os.pdf
 	// Line 621
 	if request.ProtocolBinding == "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST" {
-		return nil
+		return acs.Audience, nil
 	}
-	return verifySignature(r.Form.Get("SAMLRequest"), r.Form.Get("RelayState"), r.Form.Get("SigAlg"), r.Form.Get("Signature"), sp)
+	return acs.Audience, verifySignature(r.Form.Get("SAMLRequest"), r.Form.Get("RelayState"), r.Form.Get("SigAlg"), r.Form.Get("Signature"), sp)
 }
 
 func verifySignature(samlRequest, relayState, alg, expectedSig string, sp *ServiceProvider) error {
@@ -177,7 +177,8 @@ func (i *IDP) DefaultRedirectSSOHandler() http.HandlerFunc {
 				}
 			}
 
-			if err = i.validateRequest(loginReq, r); err != nil {
+			audience, err := i.validateRequest(loginReq, r)
+			if err != nil {
 				return err
 			}
 
@@ -186,6 +187,7 @@ func (i *IDP) DefaultRedirectSSOHandler() http.HandlerFunc {
 			if err != nil {
 				return err
 			}
+			saveableRequest.Audience = audience
 
 			// check for existing session
 			if user := i.getUserFromSession(r); user != nil {

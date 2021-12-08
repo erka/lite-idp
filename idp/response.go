@@ -62,7 +62,7 @@ func (i *IDP) respond(authRequest *model.AuthnRequest, user *model.User,
 func (i *IDP) makeAuthnResponse(request *model.AuthnRequest, user *model.User) *saml.Response {
 	now := time.Now().UTC()
 	fiveFromNow := now.Add(5 * time.Minute)
-	resp := i.makeResponse(request.ID, request.Issuer, user)
+	resp := i.makeResponse(request.ID, request.Issuer, request.Audience, user)
 	// Add subject confirmation data and authentication statement
 	resp.Assertion.AuthnStatement = &saml.AuthnStatement{
 		AuthnInstant: now,
@@ -86,7 +86,7 @@ func (i *IDP) makeAuthnResponse(request *model.AuthnRequest, user *model.User) *
 	return resp
 }
 
-func (i *IDP) makeResponse(id, issuer string, user *model.User) *saml.Response {
+func (i *IDP) makeResponse(id, issuer string, audience string, user *model.User) *saml.Response {
 	now := time.Now().UTC()
 	fiveFromNow := now.Add(5 * time.Minute)
 	s := &saml.Response{
@@ -123,7 +123,7 @@ func (i *IDP) makeResponse(id, issuer string, user *model.User) *saml.Response {
 				NotOnOrAfter: fiveFromNow,
 				NotBefore:    now,
 				AudienceRestriction: &saml.AudienceRestriction{
-					Audience: issuer,
+					Audience: audience,
 				},
 			},
 		},

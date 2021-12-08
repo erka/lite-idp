@@ -27,7 +27,7 @@ func (i *IDP) DefaultQueryHandler() http.HandlerFunc {
 			if err := i.setUserAttributes(user, nil); err != nil {
 				return err
 			}
-			response := i.makeResponse(query.ID, query.Issuer, user)
+			response := i.makeResponse(query.ID, query.Issuer, "", user)
 			env := &saml.AttributeRespEnv{
 				Body: saml.AttributeRespBody{
 					Response: *response,

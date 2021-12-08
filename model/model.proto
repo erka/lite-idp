@@ -1,6 +1,6 @@
 syntax = "proto3";
 package model;
-
+option go_package = "/model";
 import "google/protobuf/timestamp.proto";
 
 // Allows storage of the request for cases where there 
@@ -15,6 +15,7 @@ message AuthnRequest {
     string ProtocolBinding = 7;
     uint32 AssertionConsumerServiceIndex = 8;
     string RelayState = 9;
+    string Audience = 10;
 }
 
 // Allows storage of user information to avoid
