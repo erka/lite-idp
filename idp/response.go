@@ -26,6 +26,7 @@ import (
 	"github.com/amdonov/lite-idp/saml"
 	"github.com/golang/protobuf/proto"
 	"github.com/google/uuid"
+	"github.com/spf13/viper"
 )
 
 func (i *IDP) respond(authRequest *model.AuthnRequest, user *model.User,
@@ -86,9 +87,43 @@ func (i *IDP) makeAuthnResponse(request *model.AuthnRequest, user *model.User) *
 	return resp
 }
 
-func (i *IDP) makeResponse(id, issuer string, audience string, user *model.User) *saml.Response {
+func (i *IDP) makeResponse(id, issuer, audience string, user *model.User) *saml.Response {
 	now := time.Now().UTC()
 	fiveFromNow := now.Add(5 * time.Minute)
+
+	var mapping map[string]string
+	var subject string
+
+	if sp, ok := i.sps[issuer]; ok {
+		subject = sp.Subject
+		mapping = sp.Mapping
+	}
+
+	attributes := user.Attributes
+	subjectValue := user.Name
+	attributeStatement := &saml.AttributeStatement{}
+	if user.Attributes != nil {
+		for _, val := range attributes {
+			if val.Name == subject && len(val.Value) > 0 {
+				subjectValue = val.Value[0]
+			}
+
+			if mappedAttributeName, ok := mapping[val.Name]; ok {
+				attVals := make([]saml.AttributeValue, len(val.Value))
+				for i := range val.Value {
+					attVals[i] = saml.AttributeValue{Value: val.Value[i]}
+				}
+				att := saml.Attribute{
+					FriendlyName:   mappedAttributeName,
+					Name:           mappedAttributeName,
+					NameFormat:     viper.GetString("saml-attribute-name-format"),
+					AttributeValue: attVals,
+				}
+				attributeStatement.Attribute = append(attributeStatement.Attribute, att)
+			}
+		}
+	}
+
 	s := &saml.Response{
 		StatusResponseType: saml.StatusResponseType{
 			Version:      "2.0",
@@ -112,13 +147,13 @@ func (i *IDP) makeResponse(id, issuer string, audience string, user *model.User)
 					Format:          user.Format,
 					NameQualifier:   i.entityID,
 					SPNameQualifier: issuer,
-					Value:           user.Name,
+					Value:           subjectValue,
 				},
 				SubjectConfirmation: &saml.SubjectConfirmation{
 					Method: "urn:oasis:names:tc:SAML:2.0:cm:sender-vouches",
 				},
 			},
-			AttributeStatement: user.AttributeStatement(),
+			AttributeStatement: attributeStatement,
 			Conditions: &saml.Conditions{
 				NotOnOrAfter: fiveFromNow,
 				NotBefore:    now,

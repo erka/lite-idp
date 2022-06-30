@@ -31,6 +31,8 @@ type ServiceProvider struct {
 	Certificate               string
 	// Could be an RSA or DSA public key
 	publicKey interface{}
+	Subject   string
+	Mapping   map[string]string
 }
 
 func (sp *ServiceProvider) parseCertificate() error {
