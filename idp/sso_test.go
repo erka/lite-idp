@@ -98,7 +98,10 @@ func TestIDP_loginWithCert(t *testing.T) {
 	req.TLS = &tls.ConnectionState{
 		PeerCertificates: []*x509.Certificate{cert},
 	}
-	i.loginWithCert(req, nil)
+	_, err = i.loginWithCert(req, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
 }
 
 func TestIDP_getUserFromSession(t *testing.T) {
@@ -119,7 +122,10 @@ func TestIDP_getUserFromSession(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	i.UserCache.Set("12345", data)
+	err = i.UserCache.Set("12345", data)
+	if err != nil {
+		t.Fatal(err)
+	}
 	i.getUserFromSession(req)
 	assert.Equal(t, user.Name, i.getUserFromSession(req).Name, "should have returned a user")
 }
@@ -137,7 +143,10 @@ func TestIDP_loginWithPasswordForm(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	i.TempCache.Set("1234", data)
+	err = i.TempCache.Set("1234", data)
+	if err != nil {
+		t.Fatal(err)
+	}
 	r := httptest.NewRequest("POST", "/SAML2/ui/login.html", nil)
 	r.Form = url.Values{}
 	r.Form.Add("requestId", "1234")

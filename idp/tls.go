@@ -17,7 +17,7 @@ package idp
 import (
 	"crypto/tls"
 	"crypto/x509"
-	"io/ioutil"
+	"os"
 
 	"github.com/spf13/viper"
 )
@@ -36,7 +36,7 @@ func ConfigureTLS() (*tls.Config, error) {
 		MinVersion: tls.VersionTLS12,
 	}
 	if ca != "" {
-		caCert, err := ioutil.ReadFile(ca)
+		caCert, err := os.ReadFile(ca)
 		if err != nil {
 			return nil, err
 		}

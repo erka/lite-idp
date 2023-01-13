@@ -44,7 +44,10 @@ func TestIDP_DefaultArtifactResolveHandler(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	i.TempCache.Set("123456", data)
+	err = i.TempCache.Set("123456", data)
+	if err != nil {
+		t.Fatal(err)
+	}
 	resp, err := ts.Client().Post(ts.URL+viper.GetString("artifact-service-path"), "text/xml", in)
 	if err != nil {
 		t.Fatal(err)
@@ -56,5 +59,8 @@ func TestIDP_DefaultArtifactResolveHandler(t *testing.T) {
 func TestIDP_sendArtifactResponse(t *testing.T) {
 	i := &IDP{}
 	getTestIDP(t, i)
-	i.sendArtifactResponse(&model.AuthnRequest{}, &model.User{}, httptest.NewRecorder(), httptest.NewRequest("GET", "/test", nil))
+	err := i.sendArtifactResponse(&model.AuthnRequest{}, &model.User{}, httptest.NewRecorder(), httptest.NewRequest("GET", "/test", nil))
+	if err != nil {
+		t.Fatal(err)
+	}
 }

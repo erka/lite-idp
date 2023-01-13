@@ -20,7 +20,10 @@ func TestQuery(t *testing.T) {
 		// TODO check incoming request
 		f, _ := os.Open(filepath.Join("testdata", "query-response.xml"))
 		defer f.Close()
-		io.Copy(w, f)
+		_, err := io.Copy(w, f)
+		if err != nil {
+			t.Fatal(err)
+		}
 	}))
 
 	tlsConfigClient, err := idp.ConfigureTLS()

@@ -34,6 +34,9 @@ func Test_serviceProvider_GetRedirect(t *testing.T) {
 		AssertionConsumerServiceURL: "http://test",
 		TLSConfig:                   tlsConfigClient,
 	})
+	if err != nil {
+		t.Fatal(err)
+	}
 	_, err = serviceProvider.GetRedirect([]byte("mystate"))
 	if err != nil {
 		t.Fatal(err)

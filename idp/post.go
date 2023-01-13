@@ -36,9 +36,15 @@ func (i *IDP) sendPostResponse(authRequest *model.AuthnRequest, user *model.User
 	response.Assertion.Signature = signature
 	var xmlbuff bytes.Buffer
 	memWriter := bufio.NewWriter(&xmlbuff)
-	memWriter.Write([]byte(xml.Header))
+	_, err = memWriter.Write([]byte(xml.Header))
+	if err != nil {
+		return err
+	}
 	encoder := xml.NewEncoder(memWriter)
-	encoder.Encode(response)
+	err = encoder.Encode(response)
+	if err != nil {
+		return err
+	}
 	memWriter.Flush()
 
 	samlMessage := base64.StdEncoding.EncodeToString(xmlbuff.Bytes())
@@ -55,7 +61,7 @@ func (i *IDP) sendPostResponse(authRequest *model.AuthnRequest, user *model.User
 	return i.postTemplate.Execute(w, data)
 }
 
-//Assume HTML 5, where <head> is not required
+// Assume HTML 5, where <head> is not required
 const postTemplate = `<!DOCTYPE html>
 <html lang="en">
 <head>

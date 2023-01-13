@@ -39,7 +39,10 @@ func Test_serviceProvider_resolveArtifact(t *testing.T) {
 		// TODO check incoming request
 		f, _ := os.Open(filepath.Join("testdata", "artifact-response.xml"))
 		defer f.Close()
-		io.Copy(w, f)
+		_, err := io.Copy(w, f)
+		if err != nil {
+			t.Fatal(err)
+		}
 	}))
 
 	tlsConfigClient, err := idp.ConfigureTLS()
@@ -53,6 +56,9 @@ func Test_serviceProvider_resolveArtifact(t *testing.T) {
 		IDPArtifactEndpoint:         ts.URL,
 		TLSConfig:                   tlsConfigClient,
 	})
+	if err != nil {
+		t.Fatal(err)
+	}
 	assertion, err := serviceProvide.(*serviceProvider).resolveArtifact("12345")
 	if err != nil {
 		t.Fatal(err)
@@ -72,6 +78,9 @@ func Test_serviceProvider_ArtifactFunc(t *testing.T) {
 		AssertionConsumerServiceURL: "http://test",
 		TLSConfig:                   tlsConfigClient,
 	})
+	if err != nil {
+		t.Fatal(err)
+	}
 	callback := serviceProvider.ArtifactFunc(func(w http.ResponseWriter, r *http.Request, state []byte, assertion *saml.Assertion) {
 
 	})
@@ -115,7 +124,10 @@ func Test_serviceProvider_retrieveState(t *testing.T) {
 	assert.Equal(t, []byte("test"), state)
 	// rerun with a cache
 	sp.(*serviceProvider).stateCache = cache
-	cache.Set("test", []byte("cached-value"))
+	err = cache.Set("test", []byte("cached-value"))
+	if err != nil {
+		t.Fatal(err)
+	}
 	state, err = sp.(*serviceProvider).retrieveState(req)
 	if err != nil {
 		t.Fatal(err)
@@ -135,6 +147,9 @@ func Test_serviceProvider_validateAssertion(t *testing.T) {
 		AssertionConsumerServiceURL: "http://test",
 		TLSConfig:                   tlsConfigClient,
 	})
+	if err != nil {
+		t.Fatal(err)
+	}
 	// valid assertion
 	assertion := &saml.Assertion{
 		Conditions: &saml.Conditions{
@@ -170,6 +185,9 @@ func Tes_serviceProvider_validateAssertionWithThreshold(t *testing.T) {
 		TLSConfig:                   tlsConfigClient,
 		TimestampMargin:             1 * time.Minute,
 	})
+	if err != nil {
+		t.Fatal(err)
+	}
 	// valid assertion with the margin
 	assertion := &saml.Assertion{
 		Conditions: &saml.Conditions{

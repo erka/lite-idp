@@ -38,7 +38,10 @@ func TestIDP_DefaultPasswordLoginHandler(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	i.TempCache.Set("1234", data)
+	err = i.TempCache.Set("1234", data)
+	if err != nil {
+		t.Fatal(err)
+	}
 	client := ts.Client()
 	// Don't follow redirects. Want to see if we were going back to login form or not
 	client.CheckRedirect = func(r *http.Request, old []*http.Request) error {

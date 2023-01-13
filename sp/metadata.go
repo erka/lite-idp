@@ -18,6 +18,7 @@ import (
 	"bytes"
 	"encoding/base64"
 	"encoding/xml"
+	"fmt"
 	"net/http"
 
 	"github.com/amdonov/lite-idp/saml"
@@ -73,6 +74,9 @@ func (sp *serviceProvider) MetadataFunc() (http.HandlerFunc, error) {
 
 	// return handler
 	return func(w http.ResponseWriter, r *http.Request) {
-		w.Write(metadata)
+		_, err := w.Write(metadata)
+		if err != nil {
+			fmt.Println("failed to send request")
+		}
 	}, nil
 }

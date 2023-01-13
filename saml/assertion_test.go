@@ -14,6 +14,9 @@ func TestRawXML(t *testing.T) {
 	var b bytes.Buffer
 	assertion := Assertion{RawXML: "Hi there"}
 	enc := xml.NewEncoder(&b)
-	enc.Encode(assertion)
+	err := enc.Encode(assertion)
+	if err != nil {
+		t.Fatal(err)
+	}
 	assert.False(t, strings.Contains(b.String(), "Hi"), b.String())
 }

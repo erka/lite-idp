@@ -99,6 +99,9 @@ func (i *IDP) DefaultMetadataHandler() (http.HandlerFunc, error) {
 
 	// return handler
 	return func(w http.ResponseWriter, r *http.Request) {
-		w.Write(metadata)
+		_, err := w.Write(metadata)
+		if err != nil {
+			i.Error(w, err.Error(), http.StatusInternalServerError)
+		}
 	}, nil
 }

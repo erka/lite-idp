@@ -1,0 +1,31 @@
+artifact-service-path: /SAML2/SOAP/ArtifactResolution
+attribute-service-path: /SAML2/SOAP/AttributeQuery
+cookie-name: lite-idp-sess
+digest-algorithm: http://www.w3.org/2001/04/xmlenc#sha256
+ecp-service-path: /SAML2/SOAP/ECP
+listen-address: 127.0.0.1:9443
+metadata-path: /metadata
+redis:
+  address: 127.0.0.1:6379
+  password: ""
+relay-state-length: 80
+saml-attribute-name-format: urn:oasis:names:tc:SAML:2.0:attrname-format:basic
+server-name: idp.example.com:9443
+signature-algorithm: ""
+sps:
+- entityid: dex
+  assertionconsumerservices:
+  - index: 0
+    isdefault: true
+    binding: urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Artifact
+    location: http://127.0.0.1:5556/dex/callback
+    audience: ""
+  certificate: MIICzDCCAbQCCQCaJRU/CzFSGzANBgkqhkiG9w0BAQsFADAoMQswCQYDVQQGEwJVUzEMMAoGA1UECgwDZGV4MQswCQYDVQQDDAJzcDAeFw0xODA5MDQxODEwMzlaFw0yODA5MDExODEwMzlaMCgxCzAJBgNVBAYTAlVTMQwwCgYDVQQKDANkZXgxCzAJBgNVBAMMAnNwMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAzJZd8K9jxC6mxuR5dw08qicw0VsDN1bAvdInKGzugsJYRH/MfcgrKwLCTZHBGZZFmdHxhca84cG/Wn24Ys5eF1JWhehYocyYqZqY3ESPldDK4ohwCvKhSogpF9hVyi9LnujCgfGOv98atMWDeqTLletCPsHcXzLq3cN58oNl80HXIQKFM7n9ZgUKLqk6d2hT7LeYndZKg5aUQ4jyTfz/S1XgYBDr0utl41HtUsHSYwQDx3v0wMqZVorzk8HrXaXowvUwVct6HxT/c5QxtHCxmm6n6/Mwr8Xzk1yxQq9dLtEOmEtnYgIEhyiUP7CdFPWC37sn9YiGCSjRukE07CyG0wIDAQABMA0GCSqGSIb3DQEBCwUAA4IBAQAJFl+hHwS6xNRtWMgJsu943zv4U8ZksyWAM5bk94ERMwpJVPndJIW0+UAT3Pp/k9E3Lro/AbSIA364LBzLoONOqfeNTUK4YH7wQGfmusI8c28akY5ZfDx8Ixc4oxPkcExh47YkVECSUhMq9gDMI10ePsSkVB7fss1QibmOsGM8WQyQzdmqfHbd7ws0g7P2I+SiR5+FboyliKRdqqSvQ8dL2hEAGtc9mZCPnlriiNzawCYPprH3lA+QWq+SI+QmQqTou05pWl5q+KcWU7INf0wEsXa26qcizqMTMNPuuu8Lp0gmmpUeH1AKVqO8P9VYT+GnkAUdoD3z1GCkLUvPaFYP
+  subject: ""
+  mapping: {}
+sso-service-path: /SAML2/Redirect/SSO
+temp-cache-duration: 5m
+tls-ca: ""
+tls-certificate: /etc/lite-idp/cert.pem
+tls-private-key: /etc/lite-idp/key.pem
+user-cache-duration: 8h
