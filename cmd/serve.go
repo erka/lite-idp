@@ -48,7 +48,10 @@ func ServeCmd(indentityProvider *idp.IDP) *cobra.Command {
 			go func() {
 				// Handle shutdown signal
 				<-stop
-				server.Shutdown(context.Background())
+				err := server.Shutdown(context.Background())
+				if err != nil {
+					log.WithError(err).Error("failure during shutdown")
+				}
 			}()
 
 			log.Infof("listening for connections on %s", server.Addr)

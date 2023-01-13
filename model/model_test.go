@@ -32,7 +32,10 @@ func TestNewAuthnRequest(t *testing.T) {
 	defer in.Close()
 	dec := xml.NewDecoder(in)
 	req := &saml.AuthnRequest{}
-	dec.Decode(req)
+	err = dec.Decode(req)
+	if err != nil {
+		t.Fatal(err)
+	}
 	modelReq, err := NewAuthnRequest(req, "1234")
 	if err != nil {
 		t.Fatal(err)

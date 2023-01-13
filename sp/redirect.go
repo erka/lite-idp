@@ -63,7 +63,10 @@ func (sp *serviceProvider) GetRedirect(state []byte) (string, error) {
 		stateID = url.QueryEscape(string(state))
 	} else {
 		// Store the provided state
-		sp.stateCache.Set(stateID, state)
+		err = sp.stateCache.Set(stateID, state)
+		if err != nil {
+			return "", err
+		}
 	}
 	samlRequest := url.QueryEscape(base64.StdEncoding.EncodeToString(b.Bytes()))
 	requestToSign := "SAMLRequest=" + samlRequest + "&RelayState=" + stateID + "&SigAlg=" + url.QueryEscape(sp.signer.Algorithm())

@@ -18,7 +18,6 @@ import (
 	"encoding/xml"
 	"errors"
 	"io"
-	"io/ioutil"
 	"net/http"
 	"strings"
 
@@ -69,7 +68,7 @@ func sendSOAPFault(i *IDP, w http.ResponseWriter, code, fault string) {
 }
 
 func (i *IDP) processECPRequest(w http.ResponseWriter, r *http.Request) (*model.AuthnRequest, *model.User, error) {
-	xml, err := ioutil.ReadAll(r.Body)
+	xml, err := io.ReadAll(r.Body)
 	if err != nil {
 		return nil, nil, err
 	}

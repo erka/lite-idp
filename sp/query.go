@@ -42,7 +42,10 @@ func (sp *serviceProvider) Query(nameID string) (*saml.Assertion, error) {
 		// TODO check the rest of the response for an error
 		// Write it out for now until we know what we're looking
 		encoder := xml.NewEncoder(os.Stderr)
-		encoder.Encode(response)
+		err = encoder.Encode(response)
+		if err != nil {
+			return nil, err
+		}
 		return nil, errors.New("check logs assertion was nil")
 	}
 	assertion.RawXML = response.Body.Response.RawAssertion

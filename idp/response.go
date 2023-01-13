@@ -24,9 +24,9 @@ import (
 
 	"github.com/amdonov/lite-idp/model"
 	"github.com/amdonov/lite-idp/saml"
-	"github.com/golang/protobuf/proto"
 	"github.com/google/uuid"
 	"github.com/spf13/viper"
+	"google.golang.org/protobuf/proto"
 )
 
 func (i *IDP) respond(authRequest *model.AuthnRequest, user *model.User,

@@ -36,6 +36,9 @@ func Test_serviceProvider_MetadataFunc(t *testing.T) {
 		AssertionConsumerServiceURL: "http://test",
 		TLSConfig:                   tlsConfigClient,
 	})
+	if err != nil {
+		t.Fatal(err)
+	}
 	mf, err := serviceProvider.MetadataFunc()
 	if err != nil {
 		t.Fatal(err)

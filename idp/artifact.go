@@ -22,8 +22,8 @@ import (
 
 	"github.com/amdonov/lite-idp/model"
 	"github.com/amdonov/lite-idp/saml"
-	"github.com/golang/protobuf/proto"
 	log "github.com/sirupsen/logrus"
+	"google.golang.org/protobuf/proto"
 )
 
 // DefaultArtifactResolveHandler is the default implementation for the artifact resolution handler. It can be used as is, wrapped in other handlers, or replaced completely.
@@ -95,9 +95,21 @@ func (i *IDP) processArtifactResolutionRequest(w http.ResponseWriter, r *http.Re
 	// TODO handle these errors. Probably can't do anything besides log, as we've already started to write the
 	// response.
 	_, err = w.Write([]byte(xml.Header))
+	if err != nil {
+		i.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 	encoder := xml.NewEncoder(w)
 	err = encoder.Encode(artResponseEnv)
+	if err != nil {
+		i.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 	err = encoder.Flush()
+	if err != nil {
+		i.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 }
 
 func (i *IDP) sendArtifactResponse(authRequest *model.AuthnRequest, user *model.User,
@@ -117,7 +129,10 @@ func (i *IDP) sendArtifactResponse(authRequest *model.AuthnRequest, user *model.
 	if err != nil {
 		i.Error(w, err.Error(), http.StatusInternalServerError)
 	}
-	i.TempCache.Set(artifact, data)
+	err = i.TempCache.Set(artifact, data)
+	if err != nil {
+		i.Error(w, err.Error(), http.StatusInternalServerError)
+	}
 	parameters.Add("SAMLart", artifact)
 	parameters.Add("RelayState", authRequest.RelayState)
 	target.RawQuery = parameters.Encode()

@@ -43,7 +43,10 @@ func TestNew(t *testing.T) {
 		t.Fatal(err)
 	}
 	assert.Equal(t, value, res)
-	cache.Delete("test")
+	err = cache.Delete("test")
+	if err != nil {
+		t.Fatal("should not have returned value")
+	}
 	_, err = cache.Get("test")
 	if err == nil {
 		t.Fatal("should not have returned value")

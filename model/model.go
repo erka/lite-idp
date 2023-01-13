@@ -23,8 +23,8 @@ package model
 
 import (
 	"github.com/amdonov/lite-idp/saml"
-	"github.com/golang/protobuf/ptypes"
 	"github.com/spf13/viper"
+	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
 )
 
 func (u *User) AppendAttributes(atts []*Attribute) {
@@ -58,10 +58,7 @@ func (u *User) AttributeStatement() *saml.AttributeStatement {
 
 // NewAuthnRequest creates a protobuf object from XML-derived struct
 func NewAuthnRequest(src *saml.AuthnRequest, relayState string) (*AuthnRequest, error) {
-	t, err := ptypes.TimestampProto(src.IssueInstant)
-	if err != nil {
-		return nil, err
-	}
+	t := timestamppb.New(src.IssueInstant)
 	return &AuthnRequest{
 		AssertionConsumerServiceURL:   src.AssertionConsumerServiceURL,
 		AssertionConsumerServiceIndex: src.AssertionConsumerServiceIndex,
