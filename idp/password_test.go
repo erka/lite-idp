@@ -22,8 +22,8 @@ import (
 	"testing"
 
 	"github.com/amdonov/lite-idp/model"
-	"github.com/golang/protobuf/proto"
 	"github.com/stretchr/testify/assert"
+	"google.golang.org/protobuf/proto"
 )
 
 func TestIDP_DefaultPasswordLoginHandler(t *testing.T) {

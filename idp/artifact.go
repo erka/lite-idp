@@ -22,8 +22,8 @@ import (
 
 	"github.com/amdonov/lite-idp/model"
 	"github.com/amdonov/lite-idp/saml"
-	"github.com/golang/protobuf/proto"
 	log "github.com/sirupsen/logrus"
+	"google.golang.org/protobuf/proto"
 )
 
 // DefaultArtifactResolveHandler is the default implementation for the artifact resolution handler. It can be used as is, wrapped in other handlers, or replaced completely.

@@ -31,10 +31,10 @@ import (
 
 	"github.com/amdonov/lite-idp/model"
 	"github.com/amdonov/lite-idp/saml"
-	"github.com/golang/protobuf/proto"
 	"github.com/google/uuid"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
+	"google.golang.org/protobuf/proto"
 )
 
 func (i *IDP) validateRequest(request *saml.AuthnRequest, r *http.Request) (string, error) {

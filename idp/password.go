@@ -21,9 +21,9 @@ import (
 	"net/url"
 
 	"github.com/amdonov/lite-idp/model"
-	"github.com/golang/protobuf/proto"
 	"github.com/spf13/viper"
 	"golang.org/x/crypto/bcrypt"
+	"google.golang.org/protobuf/proto"
 )
 
 // ErrInvalidPassword should be returned by PasswordValidator if

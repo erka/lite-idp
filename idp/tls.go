@@ -45,6 +45,5 @@ func ConfigureTLS() (*tls.Config, error) {
 		tlsConfig.RootCAs = caCertPool
 		tlsConfig.ClientCAs = caCertPool
 	}
-	tlsConfig.BuildNameToCertificate()
 	return tlsConfig, nil
 }
