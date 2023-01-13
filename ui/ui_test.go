@@ -19,7 +19,7 @@ func Test_idpUI_ServeHTTP(t *testing.T) {
 		want int
 	}{
 		{"favicon", "/favicon.ico", 200},
-		{"login form", "/ui/login.html", 200},
+		{"login form", "/SAML2/ui/login.html", 200},
 		{"missing", "/ui/random.html", 404},
 	}
 	for _, tt := range tests {
