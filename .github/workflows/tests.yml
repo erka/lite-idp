@@ -24,5 +24,10 @@ jobs:
           go-version-file: go.mod
           cache: true
 
-      - name: Run go test
+      - name: run go test
         run: go test ./...
+
+      - name: golangci-lint
+        uses: golangci/golangci-lint-action@v3
+        with:
+          version: latest
