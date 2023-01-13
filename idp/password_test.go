@@ -44,7 +44,7 @@ func TestIDP_DefaultPasswordLoginHandler(t *testing.T) {
 	client.CheckRedirect = func(r *http.Request, old []*http.Request) error {
 		return errors.New("no redirects allowed")
 	}
-	_, err = client.PostForm(ts.URL+"/ui/login.html", url.Values{"requestId": {"1234"}})
+	_, err = client.PostForm(ts.URL+"/SAML2/ui/login.html", url.Values{"requestId": {"1234"}})
 	assert.True(t, strings.Contains(err.Error(), "Invalid+login+or+password"), "login should have failed")
 	if err == nil {
 		t.Fatal("login should have failed")
