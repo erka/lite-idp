@@ -4,11 +4,12 @@ import (
 	"bufio"
 	"bytes"
 	"fmt"
-	"github.com/yuin/gopher-lua/ast"
 	"io"
 	"reflect"
 	"strconv"
 	"strings"
+
+	"github.com/yuin/gopher-lua/ast"
 )
 
 const EOF = -1
@@ -237,9 +238,7 @@ func (sc *Scanner) scanEscape(ch int, buf *bytes.Buffer) error {
 			val, _ := strconv.ParseInt(string(bytes), 10, 32)
 			writeChar(buf, int(val))
 		} else {
-			buf.WriteByte('\\')
 			writeChar(buf, ch)
-			return sc.Error(buf.String(), "Invalid escape sequence")
 		}
 	}
 	return nil
@@ -257,7 +256,7 @@ func (sc *Scanner) scanMultilineString(ch int, buf *bytes.Buffer) error {
 	var count1, count2 int
 	count1, ch = sc.countSep(ch)
 	if ch != '[' {
-		return sc.Error(string(ch), "invalid multiline string")
+		return sc.Error(string(rune(ch)), "invalid multiline string")
 	}
 	ch = sc.Next()
 	if ch == '\n' || ch == '\r' {
@@ -288,7 +287,7 @@ var reservedWords = map[string]int{
 	"end": TEnd, "false": TFalse, "for": TFor, "function": TFunction,
 	"if": TIf, "in": TIn, "local": TLocal, "nil": TNil, "not": TNot, "or": TOr,
 	"return": TReturn, "repeat": TRepeat, "then": TThen, "true": TTrue,
-	"until": TUntil, "while": TWhile}
+	"until": TUntil, "while": TWhile, "goto": TGoto}
 
 func (sc *Scanner) Scan(lexer *Lexer) (ast.Token, error) {
 redo:
@@ -340,7 +339,7 @@ redo:
 				goto redo
 			} else {
 				tok.Type = ch
-				tok.Str = string(ch)
+				tok.Str = string(rune(ch))
 			}
 		case '"', '\'':
 			tok.Type = TString
@@ -353,7 +352,7 @@ redo:
 				tok.Str = buf.String()
 			} else {
 				tok.Type = ch
-				tok.Str = string(ch)
+				tok.Str = string(rune(ch))
 			}
 		case '=':
 			if sc.Peek() == '=' {
@@ -362,7 +361,7 @@ redo:
 				sc.Next()
 			} else {
 				tok.Type = ch
-				tok.Str = string(ch)
+				tok.Str = string(rune(ch))
 			}
 		case '~':
 			if sc.Peek() == '=' {
@@ -379,7 +378,7 @@ redo:
 				sc.Next()
 			} else {
 				tok.Type = ch
-				tok.Str = string(ch)
+				tok.Str = string(rune(ch))
 			}
 		case '>':
 			if sc.Peek() == '=' {
@@ -388,7 +387,7 @@ redo:
 				sc.Next()
 			} else {
 				tok.Type = ch
-				tok.Str = string(ch)
+				tok.Str = string(rune(ch))
 			}
 		case '.':
 			ch2 := sc.Peek()
@@ -410,9 +409,18 @@ redo:
 				tok.Type = '.'
 			}
 			tok.Str = buf.String()
-		case '+', '*', '/', '%', '^', '#', '(', ')', '{', '}', ']', ';', ':', ',':
+		case ':':
+			if sc.Peek() == ':' {
+				tok.Type = T2Colon
+				tok.Str = "::"
+				sc.Next()
+			} else {
+				tok.Type = ch
+				tok.Str = string(rune(ch))
+			}
+		case '+', '*', '/', '%', '^', '#', '(', ')', '{', '}', ']', ';', ',':
 			tok.Type = ch
-			tok.Str = string(ch)
+			tok.Str = string(rune(ch))
 		default:
 			writeChar(buf, ch)
 			err = sc.Error(buf.String(), "Invalid token")

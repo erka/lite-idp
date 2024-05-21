@@ -18,6 +18,17 @@ There are no dependencies on external binaries, so you can easily integrate it i
 
 ## Changelog
 
+### 2.5.0
+
+Added ZPopMin and ZPopMax
+
+### v2.4.6
+
+support for TIME (thanks @leon-barrett and @lirao)
+support for ZREVRANGEBYLEX
+fix for SINTER (thanks @robstein)
+updates for latest redis
+
 ### 2.4.4
 
 Fixed nil Lua return value (#43)
@@ -104,6 +115,7 @@ Implemented commands:
    - DBSIZE
    - FLUSHALL
    - FLUSHDB
+   - TIME -- returns time.Now() or value set by SetTime()
  - String keys (complete)
    - APPEND
    - BITCOUNT
@@ -184,6 +196,8 @@ Implemented commands:
    - ZINCRBY
    - ZINTERSTORE
    - ZLEXCOUNT
+   - ZPOPMIN
+   - ZPOPMAX
    - ZRANGE
    - ZRANGEBYLEX
    - ZRANGEBYSCORE
@@ -193,6 +207,7 @@ Implemented commands:
    - ZREMRANGEBYRANK
    - ZREMRANGEBYSCORE
    - ZREVRANGE
+   - ZREVRANGEBYLEX
    - ZREVRANGEBYSCORE
    - ZREVRANK
    - ZSCORE
@@ -205,7 +220,7 @@ Implemented commands:
    - SCRIPT EXISTS
    - SCRIPT FLUSH
 
-## TTLs and key expiration
+## TTLs, key expiration, and time
 
 Since miniredis is intended to be used in unittests TTLs don't decrease
 automatically. You can use `TTL()` to get the TTL (as a time.Duration) of a
@@ -219,6 +234,8 @@ converted to a duration. For that you can either set m.SetTime(t) to use that
 time as the base for the (P)EXPIREAT conversion, or don't call SetTime(), in
 which case time.Now() will be used.
 
+SetTime() also sets the value returned by TIME, which defaults to time.Now().
+It is not updated by FastForward, only by SetTime.
 
 ## Example
 
@@ -307,13 +324,12 @@ Commands which will probably not be implemented:
     - ~~SLAVEOF~~
     - ~~SLOWLOG~~
     - ~~SYNC~~
-    - ~~TIME~~
     
 
 ## &c.
 
-Tests are run against Redis 4.0.6 (Debian). The [./integration](./integration/)
-subdir compares miniredis against a real redis instance.
+Tests are run against Redis 5.0.3. The [./integration](./integration/) subdir
+compares miniredis against a real redis instance.
 
 
 [![Build Status](https://travis-ci.org/alicebob/miniredis.svg?branch=master)](https://travis-ci.org/alicebob/miniredis) 
