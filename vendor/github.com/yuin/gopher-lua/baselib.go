@@ -258,7 +258,13 @@ func basePairs(L *LState) int {
 }
 
 func basePCall(L *LState) int {
-	L.CheckFunction(1)
+	L.CheckAny(1)
+	v := L.Get(1)
+	if v.Type() != LTFunction && L.GetMetaField(v, "__call").Type() != LTFunction {
+		L.Push(LFalse)
+		L.Push(LString("attempt to call a " + v.Type().String() + " value"))
+		return 2
+	}
 	nargs := L.GetTop() - 1
 	if err := L.PCall(nargs, MultRet, nil); err != nil {
 		L.Push(LFalse)
@@ -315,11 +321,16 @@ func baseSelect(L *LState) int {
 	switch lv := L.Get(1).(type) {
 	case LNumber:
 		idx := int(lv)
-		num := L.reg.Top() - L.indexToReg(int(lv)) - 1
+		num := L.GetTop()
 		if idx < 0 {
-			num++
+			idx = num + idx
+		} else if idx > num {
+			idx = num
 		}
-		return num
+		if 1 > idx {
+			L.ArgError(1, "index out of range")
+		}
+		return num - idx
 	case LString:
 		if string(lv) != "#" {
 			L.ArgError(1, "invalid string '"+string(lv)+"'")

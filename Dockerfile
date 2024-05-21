@@ -12,7 +12,7 @@ RUN \
     GOOS=${TARGETOS} GOARCH=${TARGETARCH} CGO_ENABLED=0 \
     go build -a -mod='vendor' -trimpath='true' -buildvcs='true' -buildmode='exe' -compiler='gc' -o lite-idp
 
-FROM alpine
+FROM gcr.io/distroless/static
 COPY --from=0 /go/src/github.com/amdonov/lite-idp/lite-idp /usr/bin/lite-idp
 EXPOSE 9443
 ENTRYPOINT ["lite-idp"]

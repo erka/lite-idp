@@ -20,7 +20,7 @@ import (
 
 	"github.com/spf13/cobra"
 	"golang.org/x/crypto/bcrypt"
-	"golang.org/x/crypto/ssh/terminal"
+	"golang.org/x/term"
 )
 
 // HashCmd represents the hash command
@@ -29,7 +29,7 @@ var HashCmd = &cobra.Command{
 	Short: "hashes a password for use with example user store",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		fmt.Print("Enter Password: ")
-		bytePassword, err := terminal.ReadPassword(int(syscall.Stdin))
+		bytePassword, err := term.ReadPassword(int(syscall.Stdin))
 		if err != nil {
 			return err
 		}
